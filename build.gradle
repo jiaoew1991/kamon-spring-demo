@@ -1,0 +1,58 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
+    }
+}
+
+project.ext {
+    aspectjVersion = '1.8.6'
+}
+
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'kamon-annotation-example'
+    version = '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url "http://snapshots.kamon.io/"
+    }
+}
+
+configurations {
+    aspectjweaver
+}
+
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+
+    compile("com.typesafe.akka:akka-slf4j_2.11:2.3.14")
+    compile("io.kamon:kamon-core_2.11:0.5.2")
+    compile("io.kamon:kamon-akka_2.11:0.5.2")
+    compile("io.kamon:kamon-annotation_2.11:0.5.2")
+    aspectjweaver "org.aspectj:aspectjweaver:1.8.6"
+    runtime configurations.aspectjweaver.dependencies
+
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+apply plugin: 'application'
+applicationDefaultJvmArgs = [ "-javaagent:${configurations.aspectjweaver.asPath}" ]
+
+bootRun {
+    jvmArgs = [ "-javaagent:${configurations.aspectjweaver.asPath}" ]
+}
